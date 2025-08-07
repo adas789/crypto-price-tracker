@@ -8,6 +8,7 @@ A fully automated data pipeline that:
 
 ## 🔧 Tech Stack
 - Python
+- DBT
 - Apache Airflow
 - Google BigQuery
 - Power BI

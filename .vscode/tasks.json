@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Initialize Airflow DB",
+			"command": "airflow db init"
+		}
+		,
+		{
+			"type": "shell",
+			"label": "Start Airflow Webserver",
+			"command": "airflow webserver --port 8080",
+			"isBackground": true
+		},
+		{
+			"type": "shell",
+			"label": "Start Airflow Scheduler",
+			"command": "airflow scheduler",
+			"isBackground": true
+		}
+	]
+}

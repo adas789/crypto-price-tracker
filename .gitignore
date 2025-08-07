@@ -1,3 +1,22 @@
+# Airflow Docker
+logs/
+dags/__pycache__/
+plugins/__pycache__/
+airflow_home/
+airflow-venv/
+airflow310/
+
+# Docker
+*.pid
+*.sock
+docker-compose*.env
+docker-compose*.override.yml
+postgres-data/
+
+# DBT
+crypto_dbt/target/
+crypto_dbt/dbt_modules/
+crypto_dbt/.dbt/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
