@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: crypto_data
+    database: crypto-price-tracker-468210
+    schema: crypto_data
+    description: "Source data for crypto prices"
+    tables:
+      - name: top_10_prices
+        description: "Top 10 cryptocurrencies by market cap"
+        columns:
+          - name: id
+            description: "Unique identifier for the cryptocurrency"
+          - name: name
+            description: "Name of the cryptocurrency"
+          - name: symbol
+            description: "Symbol of the cryptocurrency"
+          - name: current_price
+            description: "Current price in USD"
+          - name: market_cap
+            description: "Market capitalization in USD"
+          - name: price_change_24h
+            description: "Absolute price change in the last 24 hours"
+          - name: price_change_pct_24h
+            description: "Percentage price change in the last 24 hours"
+          - name: fetched_at
+            description: "Timestamp when the data was fetched"
