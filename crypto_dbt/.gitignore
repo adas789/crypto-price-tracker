@@ -1,0 +1,12 @@
+
+target/
+dbt_packages/
+logs/
+
+# dbt user-specific config (if you ever copy this into the repo)
+*.dbt/
+manifest.json
+run_results.json
+
+# Secret keys
+secrets/
