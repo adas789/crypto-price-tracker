@@ -63,6 +63,7 @@ An end-to-end data engineering project that demonstrates a modern data pipeline:
 - Data quality tests (DBT)
 - Deduplication in models
 - Clear documentation and code comments
+- Comprehensive logging for all pipeline steps: Each Airflow task logs key events, record counts, validation results, and errors for full traceability and easier debugging.
 
 ## 📁 Example DBT Tests (see `crypto_dbt/models/schema.yml`)
 ```yaml
@@ -80,4 +81,4 @@ SELECT * FROM `crypto_data.fact_prices` WHERE price_date = CURRENT_DATE()
 ## 📌 Coming Soon
 - Power BI dashboard
 - Deployment guide
-- Freemium model for crypto traders
+- Freemium model for crypto lovers

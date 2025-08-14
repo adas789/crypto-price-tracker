@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import requests
 import json
 from google.cloud import bigquery
+import logging
 
 #--------------- CONFIGURATION ---------------#
 PROJECT_ID = "crypto-price-tracker-468210"
@@ -19,6 +20,7 @@ default_args = {
 
 # Task 1: Extract prices from CoinGecko API
 def extract_prices(**kwargs):
+    logging.info("Starting extraction of crypto prices from CoinGecko API")
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
         'vs_currency': 'usd',
@@ -31,36 +33,45 @@ def extract_prices(**kwargs):
     response = requests.get(url, params=params)
     response.raise_for_status()
     data = response.json()
-    print("Fetched crypto prices:", data)
+    logging.info(f"Fetched {len(data)} records from CoinGecko API")
     kwargs['ti'].xcom_push(key='crypto_data', value=data)
 
 # Task 2: Validate the fetched data
 def validate_data(**kwargs):
+    logging.info("Starting data validation")
     ti = kwargs['ti']
     data = ti.xcom_pull(key='crypto_data', task_ids='extract_prices')
 
     if not data or len(data) < 2:
+        logging.error("Validation failed: Insufficient data fetched from CoinGecko API.")
         raise ValueError("Insufficient data fetched from CoinGecko API.")
     
+        # Ensure the main coins are present
+    expected = {"bitcoin", "ethereum"}
+    seen = {c.get("id") for c in data}
+    if not expected.issubset(seen):
+        logging.error(f"Validation failed: missing expected coins. Seen: {seen}")
+        raise ValueError(f"Validation failed: missing expected coins. Seen: {seen}")
+
     for coin in data:
         cid = coin.get("id")
         price = coin.get("current_price")
         last_updated = coin.get("last_updated")
         if price is None or price <= 0:
+            logging.error(f"Validation failed: Invalid price for coin {cid}: {price}")
             raise ValueError(f"Invalid price for coin {cid}: {price}")
         if not last_updated:
+            logging.error(f"Validation failed: Missing last updated timestamp for coin {cid}")
             raise ValueError(f"Missing last updated timestamp for coin {cid}")
+    logging.info("Data validation passed successfully")
         
-        # Ensure the main coins are present
-        expected = {"bitcoin", "ethereum"}
-        seen = {c.get("id") for c in data}
-        if not expected.issubset(seen):
-            raise ValueError(f"Validation failed: missing expected coins. Seen: {seen}")
+
         
         # -------- Additional validation can be added here as needed --------
 
 # Task 3: Load data to BigQuery
 def load_to_bigquery(**kwargs):
+    logging.info("Starting data load to BigQuery")
     # Pull the data from XCom and insert into BigQuery
     data = kwargs['ti'].xcom_pull(key='crypto_data', task_ids='extract_prices')
 
@@ -87,9 +98,12 @@ def load_to_bigquery(**kwargs):
         })
 
     # Insert rows into BigQuery
+    logging.info(f"Inserting {len(rows)} rows into BigQuery table {table_id}")
     errors = client.insert_rows_json(table_id, rows)
     if errors:
+        logging.error(f"Failed to insert rows: {errors}")
         raise Exception(f"Failed to insert rows: {errors}")
+    logging.info(f"Successfully inserted {len(rows)} rows into BigQuery table {table_id}")
     
 #---------------- DAG DEFINITION ---------------#
 
