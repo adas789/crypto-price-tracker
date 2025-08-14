@@ -5,6 +5,7 @@ import requests
 import json
 from google.cloud import bigquery
 import logging
+from airflow.operators.bash import BashOperator
 
 #--------------- CONFIGURATION ---------------#
 PROJECT_ID = "crypto-price-tracker-468210"
@@ -133,7 +134,19 @@ with DAG(
     load = PythonOperator(
         task_id='load_to_bigquery',
         python_callable=load_to_bigquery,
-)
+    )
+
+    # Create a BashOperator to run the dbt commands
+    dbt_run = BashOperator(
+        task_id='dbt_run',
+        bash_command='cd /opt/airflow/crypto_dbt && dbt run',
+    )
+
+    #Create a BashOperator to run the dbt tests
+    dbt_tests = BashOperator(
+        task_id='dbt_tests',
+        bash_command='cd /opt/airflow/crypto_dbt && dbt test',
+    )
 
     # Set task dependencies
-    extract >> validate >> load
+    extract >> validate >> load >> dbt_run >> dbt_tests

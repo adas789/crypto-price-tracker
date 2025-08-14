@@ -1,0 +1,28 @@
+crypto_dbt:
+  outputs:
+    dev:
+      dataset: crypto_data
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: /opt/airflow/secrets/crypto-tracker-creds.json
+      location: europe-west2
+      method: service-account
+      priority: interactive
+      project: crypto-price-tracker-468210
+      threads: 1
+      type: bigquery
+  target: dev
+funnel_analytics_pipeline:
+  outputs:
+    dev:
+      dataset: funnel_analytics
+      job_execution_timeout_seconds: 30
+      job_retries: 1
+      keyfile: C:/Users/44792/Documents/GitHub/funnel-analytics-pipeline/secrets/prism-marketing-466814-a1eadd1cca67.json
+      location: US
+      method: service-account-json
+      priority: interactive
+      project: prism-marketing-466814
+      threads: 1
+      type: bigquery
+  target: dev

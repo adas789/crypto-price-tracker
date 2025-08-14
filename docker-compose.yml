@@ -20,12 +20,15 @@ services:
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY=XznbQH2JE1ZdMmWd4yEvAdTlzZgX7VN1Gg5lIFGv6Yc=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - _PIP_ADDITIONAL_REQUIREMENTS=dbt-bigquery==1.5.9
     command: ["bash", "-c", "airflow db migrate && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com"]
     user: "0:0"
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      - ./crypto_dbt:/opt/airflow/crypto_dbt
+      - ./crypto_dbt:/opt/airflow/crypto_dbt
 
   airflow-webserver:
     image: apache/airflow:2.8.1
@@ -38,6 +41,7 @@ services:
       - AIRFLOW__CORE__FERNET_KEY=XznbQH2JE1ZdMmWd4yEvAdTlzZgX7VN1Gg5lIFGv6Yc=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/secrets/crypto-tracker-creds.json
+      - _PIP_ADDITIONAL_REQUIREMENTS=dbt-bigquery==1.5.9
     ports:
       - "8080:8080"
     command: webserver
@@ -46,6 +50,8 @@ services:
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - ./secrets/crypto-tracker-creds.json:/opt/airflow/secrets/crypto-tracker-creds.json:ro
+      - ./crypto_dbt:/opt/airflow/crypto_dbt
+      - ./profiles.yml:/home/airflow/.dbt/profiles.yml:ro
 
   airflow-scheduler:
     image: apache/airflow:2.8.1
@@ -58,12 +64,15 @@ services:
       - AIRFLOW__CORE__FERNET_KEY=XznbQH2JE1ZdMmWd4yEvAdTlzZgX7VN1Gg5lIFGv6Yc=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/secrets/crypto-tracker-creds.json
+      - _PIP_ADDITIONAL_REQUIREMENTS=dbt-bigquery==1.5.9
     command: scheduler
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - ./secrets/crypto-tracker-creds.json:/opt/airflow/secrets/crypto-tracker-creds.json:ro
+      - ./crypto_dbt:/opt/airflow/crypto_dbt
+      - ./profiles.yml:/home/airflow/.dbt/profiles.yml:ro
 
 volumes:
   postgres-db-volume:

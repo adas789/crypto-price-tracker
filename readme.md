@@ -43,19 +43,36 @@ An end-to-end data engineering project that demonstrates a modern data pipeline:
 2. **Set up Google Cloud:**
    - Create a BigQuery dataset and table (see `sql/create_tables.sql` for schema)
    - Download a service account key and place it in `secrets/crypto-tracker-creds.json`
-3. **Start Airflow (Docker):**
+3. **Configure DBT profile and credentials:**
+   - Ensure `profiles.yml` is in the project root (already included in this repo)
+   - The service account key should be at `secrets/crypto-tracker-creds.json`
+   - Docker Compose mounts these automatically to the correct locations in the Airflow containers:
+     - `./profiles.yml:/home/airflow/.dbt/profiles.yml:ro`
+     - `./secrets/crypto-tracker-creds.json:/opt/airflow/secrets/crypto-tracker-creds.json:ro`
+
+4. **Start Airflow (Docker):**
    ```sh
-   docker compose -f docker-compose.airflow.yml up -d
+   docker compose up -d
    ```
-4. **Run DBT models/tests:**
+
+5. **Run DBT models/tests manually (optional):**
    ```sh
-   cd crypto_dbt
+   docker compose exec airflow-webserver bash
    dbt run
    dbt test
    ```
 
 
 ## 🧑‍💻 Data Engineering Best Practices
+## 🛠️ Troubleshooting
+
+- If DBT cannot find your profile or credentials, ensure the `profiles.yml` and keyfile are mounted as shown above and the keyfile path in `profiles.yml` is `/opt/airflow/secrets/crypto-tracker-creds.json`.
+- If you change `profiles.yml` or the keyfile, restart the containers: `docker compose down && docker compose up -d`.
+
+## ✅ Airflow + DBT Automation
+
+- The Airflow DAG automatically triggers DBT runs after loading data to BigQuery.
+- All configuration is containerized for reproducibility and portability.
 
 - Modular, idempotent DAGs
 - Data validation step in the pipeline
